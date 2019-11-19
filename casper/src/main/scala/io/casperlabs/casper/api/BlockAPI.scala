@@ -1,7 +1,7 @@
 package io.casperlabs.casper.api
 
 import cats.effect.concurrent.Semaphore
-import cats.effect.{Concurrent, Resource, Sync}
+import cats.effect.{Concurrent, Resource}
 import cats.implicits._
 import cats.Monad
 import com.google.protobuf.ByteString
@@ -10,7 +10,6 @@ import io.casperlabs.casper.MultiParentCasperRef.MultiParentCasperRef
 import io.casperlabs.casper._
 import io.casperlabs.casper.consensus._
 import io.casperlabs.casper.consensus.info._
-import io.casperlabs.casper.util.ProtoUtil
 import io.casperlabs.casper.validation.Validation
 import io.casperlabs.catscontrib.Fs2Compiler
 import io.casperlabs.catscontrib.MonadThrowable
@@ -18,7 +17,7 @@ import io.casperlabs.comm.ServiceError
 import io.casperlabs.comm.ServiceError._
 import io.casperlabs.crypto.codec.Base16
 import io.casperlabs.metrics.Metrics
-import io.casperlabs.shared.{FatalError, FatalErrorShutdown, Log}
+import io.casperlabs.shared.{FatalError, Log}
 import io.casperlabs.storage.StorageError
 import io.casperlabs.storage.block.BlockStorage
 import io.casperlabs.storage.deploy.{DeployStorage, DeployStorageReader}

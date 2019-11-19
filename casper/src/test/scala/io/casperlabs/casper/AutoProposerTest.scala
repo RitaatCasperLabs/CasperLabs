@@ -197,8 +197,10 @@ object AutoProposerTest {
         dag: DagRepresentation[F],
         lm: Map[Validator, Set[ByteString]],
         equivocators: Set[Validator]
-    ): F[List[ByteString]]                    = ???
-    override def dag: F[DagRepresentation[F]] = ???
-    override def lastFinalizedBlock: F[Block] = ???
+    ): F[List[ByteString]] = ???
+
+    override def currentTips: F[List[DeployHash]] = ???
+    override def dag: F[DagRepresentation[F]]     = ???
+    override def lastFinalizedBlock: F[Block]     = ???
   }
 }

@@ -39,11 +39,13 @@ class NoOpsCasperEffect[F[_]: Sync: BlockStorage: DagStorage] private (
       equivocators: Set[Validator]
   ): F[List[BlockHash]] =
     estimatorFunc.pure[F]
-  def createBlock: F[CreateBlockStatus] = CreateBlockStatus.noNewDeploys.pure[F]
-  def dag: F[DagRepresentation[F]]      = DagStorage[F].getRepresentation
-  def lastFinalizedBlock: F[Block]      = Block().pure[F]
-  def fetchDependencies: F[Unit]        = ().pure[F]
-  def faultToleranceThreshold           = 0f
+
+  override def currentTips: F[List[BlockHash]] = estimatorFunc.pure[F]
+  def createBlock: F[CreateBlockStatus]        = CreateBlockStatus.noNewDeploys.pure[F]
+  def dag: F[DagRepresentation[F]]             = DagStorage[F].getRepresentation
+  def lastFinalizedBlock: F[Block]             = Block().pure[F]
+  def fetchDependencies: F[Unit]               = ().pure[F]
+  def faultToleranceThreshold                  = 0f
 }
 
 object NoOpsCasperEffect {

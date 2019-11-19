@@ -48,7 +48,8 @@ import scala.util.control.NonFatal
   */
 final case class CasperState(
     invalidBlockTracker: Set[BlockHash] = Set.empty[BlockHash],
-    dependencyDag: DoublyLinkedDag[BlockHash] = BlockDependencyDag.empty
+    dependencyDag: DoublyLinkedDag[BlockHash] = BlockDependencyDag.empty,
+    currentTips: List[ByteString] = List.empty
 )
 
 @silent("is never used")
@@ -279,13 +280,13 @@ class MultiParentCasperImpl[F[_]: Sync: Log: Metrics: Time: BlockStorage: DagSto
       equivocators: Set[Validator]
   ): F[List[BlockHash]] =
     Metrics[F].timer("estimator") {
-      Estimator.tips[F](
-        dag,
-        genesis.blockHash,
-        latestMessagesHashes,
-        equivocators
-      )
+      for {
+        tips <- Estimator.tips[F](dag, genesis.blockHash, latestMessagesHashes, equivocators)
+        _    <- state.modify(_.copy(currentTips = tips))
+      } yield tips
     }
+
+  override def currentTips: F[List[Validator]] = state.read.map(_.currentTips)
 
   /*
    * Logic:

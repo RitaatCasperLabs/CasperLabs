@@ -615,12 +615,9 @@ package object gossiping {
 
                     override def listTips: F[Seq[BlockSummary]] =
                       for {
-                        casper         <- unsafeGetCasper[F]
-                        dag            <- casper.dag
-                        latestMessages <- dag.latestMessageHashes
-                        equivocators   <- dag.getEquivocators
-                        tipHashes      <- casper.estimator(dag, latestMessages, equivocators)
-                        tips           <- tipHashes.traverse(BlockStorage[F].getBlockSummary(_))
+                        casper    <- unsafeGetCasper[F]
+                        tipHashes <- casper.currentTips
+                        tips      <- tipHashes.traverse(BlockStorage[F].getBlockSummary(_))
                       } yield tips.flatten
 
                     override def dagTopoSort(

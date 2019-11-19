@@ -32,6 +32,7 @@ trait MultiParentCasper[F[_]] {
       latestMessages: Map[ByteString, Set[ByteString]],
       equivocators: Set[Validator]
   ): F[List[ByteString]]
+  def currentTips: F[List[ByteString]]
   def createBlock: F[CreateBlockStatus]
   ////
 

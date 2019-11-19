@@ -377,17 +377,18 @@ class CreateBlockAPITest
 
 private class SleepingMultiParentCasperImpl[F[_]: Monad: Time](underlying: MultiParentCasper[F])
     extends MultiParentCasper[F] {
-  def addBlock(b: Block): F[BlockStatus]            = underlying.addBlock(b)
-  def contains(b: Block): F[Boolean]                = underlying.contains(b)
-  def deploy(d: Deploy): F[Either[Throwable, Unit]] = underlying.deploy(d)
-  def estimator(
+  override def addBlock(b: Block): F[BlockStatus]            = underlying.addBlock(b)
+  override def contains(b: Block): F[Boolean]                = underlying.contains(b)
+  override def deploy(d: Deploy): F[Either[Throwable, Unit]] = underlying.deploy(d)
+  override def estimator(
       dag: DagRepresentation[F],
       latestMessagesHashes: Map[Validator, Set[ByteString]],
       equivocators: Set[Validator]
   ): F[List[BlockHash]] =
     underlying.estimator(dag, latestMessagesHashes, equivocators)
-  def dag: F[DagRepresentation[F]] = underlying.dag
-  def lastFinalizedBlock: F[Block] = underlying.lastFinalizedBlock
+  override def currentTips: F[List[BlockHash]] = underlying.currentTips
+  override def dag: F[DagRepresentation[F]]    = underlying.dag
+  override def lastFinalizedBlock: F[Block]    = underlying.lastFinalizedBlock
 
   override def createBlock: F[CreateBlockStatus] =
     for {
