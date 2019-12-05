@@ -1,6 +1,7 @@
 package io.casperlabs.casper.util.execengine
 
 import cats.Id
+import cats.data.NonEmptyList
 import cats.implicits._
 import com.google.protobuf.ByteString
 import io.casperlabs.casper.DeploySelection.DeploySelection
@@ -437,7 +438,7 @@ class ExecEngineUtilTest extends FlatSpec with Matchers with BlockGenerator with
     result4 shouldBe result3
   }
 
-  it should "filter redundant parents from the output list" in {
+  it should "filter redundant secondary parents from the output list" in {
     /*
      * The DAG looks like:
      *       i     j
@@ -484,6 +485,24 @@ class ExecEngineUtilTest extends FlatSpec with Matchers with BlockGenerator with
     // output is the same as if the input had only included the DAG tips
     result2 shouldBe result1
   }
+
+  it should "filter redundant secondary parents, but not main parent" in {
+    // Dag looks like:
+    // genesis <- a <- b
+    val ops     = Map(1 -> Op.Read)
+    val genesis = OpDagNode.genesis(ops)
+    val a       = OpDagNode.withParents(ops, List(genesis))
+    val b       = OpDagNode.withParents(ops, List(a))
+
+    implicit val order: Ordering[OpDagNode] = ExecEngineUtilTest.opDagNodeOrder
+    val redundantMainParentResult           = OpDagNode.merge(Vector(a, b))
+    val redundantSecondaryParentResult      = OpDagNode.merge(Vector(b, a))
+
+    // main parent is not filtered out even though it is redundant with b
+    redundantMainParentResult shouldBe (ops -> Vector(a, b))
+    // secondary parent is filtered out because it is redundant with the main
+    redundantSecondaryParentResult shouldBe (Map.empty -> Vector(b))
+  }
 }
 
 object ExecEngineUtilTest {
@@ -504,15 +523,13 @@ object ExecEngineUtilTest {
         candidates: Vector[OpDagNode]
     )(implicit order: Ordering[OpDagNode]): (OpMap[Int], Vector[OpDagNode]) = {
       val merged = ExecEngineUtil.abstractMerge[Id, OpMap[Int], OpDagNode, Int](
-        candidates,
+        NonEmptyList.fromListUnsafe(candidates.toList),
         getParents,
         getEffect,
         identity
       )
 
       merged match {
-        case ExecEngineUtil.MergeResult.EmptyMerge =>
-          throw new RuntimeException("No candidates were given to merge!")
         case ExecEngineUtil.MergeResult.Result(head, effect, tail) => (effect, head +: tail)
       }
     }
