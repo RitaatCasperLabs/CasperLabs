@@ -16,12 +16,16 @@ The CasperLabs node consists of two components:
 * Build the [Mint and Proof-of-Stake Contracts](BUILD.md#build-the-mint-and-proof-of-stake-contracts).
 * Create [keys](KEYS.md#generating-node-keys-and-validator-keys).
 
-If you build from source, you will need to add the build directories to your `PATH`, for example:
+##### IMPORTANT - If you build from source:
+
+1. You will need to add the build directories to your `PATH`, for example:
 ```
 export PATH="<path-to-CasperLabs-repo>/node/target/universal/stage/bin:$PATH"
 export PATH="<path-to-CasperLabs-repo>/execution-engine/target/release:$PATH"
 ```
 Or you can run the following commands from the root directory of the repo, using explicit paths to the binaries.
+
+2. You may need to obtain the Mint and Token contracts from the release repository tarballs and place them in the   chainspec/gensis folder.  
 
 ## Instructions
 
